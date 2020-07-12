@@ -50,7 +50,7 @@ if __name__ == '__main__':
     # LSTM
     ##########################################################################################
 
-    epochs = 20
+    epochs = 15
     look_back = 30
     batch_size = 50
     n_train = 1175
@@ -65,18 +65,17 @@ if __name__ == '__main__':
     X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
 
     regressor = Sequential()
+    # recurrent_activation = "sigmoid"
     regressor.add(LSTM(units=25, return_sequences=True, input_shape=(X_train.shape[1], 1), activation='sigmoid'))
     regressor.add(Dropout(0.2))
 
     regressor.add(LSTM(units=25, return_sequences=True, activation='sigmoid'))
     regressor.add(Dropout(0.2))
 
-    regressor.add(LSTM(units=25, return_sequences=True, activation='sigmoid'))
+    regressor.add(LSTM(units=20, activation='sigmoid'))
     regressor.add(Dropout(0.2))
 
-    regressor.add(LSTM(units=20, return_sequences=True, activation='sigmoid'))
-    regressor.add(Dropout(0.2))
-
+    # regressor.add(Dense(units=1, activation='sigmoid'))
     regressor.add(Dense(units=1))
 
     regressor.compile(optimizer='adam', loss='mean_squared_error')
