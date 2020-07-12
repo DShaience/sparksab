@@ -77,7 +77,7 @@ if __name__ == '__main__':
     regressor.compile(optimizer='adam', loss='mean_squared_error')
 
     regressor.fit(X_train, y_train, epochs=100, batch_size=25)
-    # regressor.fit(X_train, y_train, epochs=100, batch_size=50)
+    # model.fit(X_train, y_train, epochs=100, batch_size=50)
 
     ##########################################################################################
     # Test
@@ -91,7 +91,7 @@ if __name__ == '__main__':
         x_test_list.append(inputs[i - look_back:i, 0])
     x_test_list = np.array(x_test_list)
     x_test = np.reshape(x_test_list, (x_test_list.shape[0], x_test_list.shape[1], 1))
-    # predicted_test_stock_price = regressor.predict(x_test)
+    # predicted_test_stock_price = model.predict(x_test)
     predicted_stock_price = regressor.predict(x_test, batch_size=25)
 
     # print("predicted_test_stock_price")

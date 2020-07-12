@@ -35,7 +35,7 @@ if __name__ == '__main__':
     x_test_scaled = scaler.transform(x_test)
 
     time_step = 30
-    # Reshaping data for regressor
+    # Reshaping data for model
     x_train_scaled = np.reshape(x_train_scaled, (x_train_scaled.shape[0], x_train_scaled.shape[1], 1))
     regressor = Sequential()
     regressor.add(LSTM(units=50, return_sequences=True, input_shape=(x_train_scaled.shape[1], 1)))
@@ -55,8 +55,8 @@ if __name__ == '__main__':
     regressor.compile(optimizer='adam', loss='mean_squared_error')
 
     regressor.fit(x_train_scaled, y_train.values.ravel(), epochs=10, batch_size=25)
-    # regressor.fit(x_train_scaled, y_train.values, epochs=10, batch_size=32)
-    # regressor.fit(x_train_scaled, y_train)
+    # model.fit(x_train_scaled, y_train.values, epochs=10, batch_size=32)
+    # model.fit(x_train_scaled, y_train)
 
 
 

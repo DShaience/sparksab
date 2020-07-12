@@ -65,18 +65,18 @@ if __name__ == '__main__':
     X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
 
     regressor = Sequential()
-    # regressor.add(LSTM(units=50, return_sequences=True, input_shape=(X_train.shape[1], 1)))
+    # model.add(LSTM(units=50, return_sequences=True, input_shape=(X_train.shape[1], 1)))
     regressor.add(LSTM(units=25, return_sequences=True, input_shape=(X_train.shape[1], 1)))
     regressor.add(Dropout(0.2))
 
     regressor.add(LSTM(units=25, return_sequences=True))
     regressor.add(Dropout(0.2))
 
-    # regressor.add(LSTM(units=25, return_sequences=True))
-    # regressor.add(Dropout(0.2))
+    # model.add(LSTM(units=25, return_sequences=True))
+    # model.add(Dropout(0.2))
     #
-    # regressor.add(LSTM(units=25, return_sequences=True))
-    # regressor.add(Dropout(0.2))
+    # model.add(LSTM(units=25, return_sequences=True))
+    # model.add(Dropout(0.2))
 
     regressor.add(LSTM(units=20))
     regressor.add(Dropout(0.2))
@@ -86,7 +86,7 @@ if __name__ == '__main__':
     regressor.compile(optimizer='adam', loss='mean_squared_error')
 
     regressor.fit(X_train, y_train, epochs=epochs, batch_size=batch_size)
-    # regressor.fit(X_train, y_train, epochs=100, batch_size=50)
+    # model.fit(X_train, y_train, epochs=100, batch_size=50)
     plot_model(regressor, to_file=f'output/{ts}_model.png')
 
     ##########################################################################################
@@ -154,7 +154,7 @@ if __name__ == '__main__':
     f.close()
 
 
-    # pickle.dump(y_train_series, open("data/output/y_train_series.p", "wb"))
+    # pickle.dump(y_train_df, open("data/output/y_train_df.p", "wb"))
     # pickle.dump(predicted_train_stock_price, open("data/output/predicted_train_stock_price.p", "wb"))
     # pickle.dump(y_test, open("data/output/y_test.p", "wb"))
     # pickle.dump(predicted_test_stock_price, open("data/output/predicted_test_stock_price.p", "wb"))
