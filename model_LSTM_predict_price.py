@@ -65,7 +65,7 @@ if __name__ == '__main__':
     X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
 
     regressor = Sequential()
-    regressor.add(LSTM(units=50, return_sequences=True, input_shape=(X_train.shape[1], 1), activation='sigmoid'))
+    regressor.add(LSTM(units=25, return_sequences=True, input_shape=(X_train.shape[1], 1), activation='sigmoid'))
     regressor.add(Dropout(0.2))
 
     regressor.add(LSTM(units=25, return_sequences=True, activation='sigmoid'))
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     regressor.add(LSTM(units=25, return_sequences=True, activation='sigmoid'))
     regressor.add(Dropout(0.2))
 
-    regressor.add(LSTM(units=10, return_sequences=True, activation='sigmoid'))
+    regressor.add(LSTM(units=20, return_sequences=True, activation='sigmoid'))
     regressor.add(Dropout(0.2))
 
     regressor.add(Dense(units=1))
