@@ -15,7 +15,7 @@ if __name__ == '__main__':
     cols_categoric_features = ['Fundamental_news', 'Market_sentiment']
 
     cols_target = 'Close'
-    correlation_matrix(data_raw[['Open', 'High', 'Low', 'Close', 'Volume', 'Humidity']], to_show=False)
+    correlation_matrix(data_raw[['Open', 'High', 'Low', 'Close', 'Volume', 'Humidity']], to_show=True)
 
     ################################################################################################
     # TO JUPYTER
@@ -25,8 +25,8 @@ if __name__ == '__main__':
     # This means that, usually, on a daily basis, the stock doesn't change all that much
     ################################################################################################
     print()
-    plot_prices(data_raw['Date'], data_raw[['Open', 'High', 'Low', 'Close']], to_show=False)
-    plot_prices(data_raw['Date'], data_raw[['Humidity']], to_show=False)
+    plot_prices(data_raw['Date'], data_raw[['Open', 'High', 'Low', 'Close']], to_show=True)
+    plot_prices(data_raw['Date'], data_raw[['Humidity']], to_show=True)
     ################################################################################################
     # TO JUPYTER
     # As we suspected, we see that the prices are extremely well correlated, on a daily basis.
@@ -63,28 +63,5 @@ if __name__ == '__main__':
 
     print("")
 
-    # def feature_importance_plot(features: pd.DataFrame, y_true: pd.Series, to_show: bool = True) -> pd.DataFrame:
     feature_importance_plot(feature_matrix, y_true=df_processed[cols_target])
-    # model = ExtraTreesRegressor(n_estimators=40, random_state=90210)
-    # model.fit(feature_matrix, df_processed[cols_target])
-    # print(model.feature_importances_)
-    # feature_importance_df = pd.DataFrame({'Feature': list(feature_matrix), 'Importance': model.feature_importances_})
-    # feature_importance_df.sort_values(by='Importance', ascending=False, inplace=True)
-    # feature_importance_df_partial = feature_importance_df.head(40)
-    # plt.plot(feature_importance_df_partial['Feature'], feature_importance_df_partial['Importance'])
-    # plt.xticks(rotation=90, fontsize=8)
-    # plt.show()
 
-
-    # from matplotlib import pyplot as plt
-    # corr_mat = feature_matrix.corr()
-    # sum_corr = corr_mat.sum().sort_values(ascending=True).index.values
-    # sort_corr_mat = feature_matrix[sum_corr].corr()
-    # # plt.matshow(feature_matrix.corr())
-    # plt.matshow(sort_corr_mat)
-    # cb = plt.colorbar()
-    # cb.ax.tick_params(labelsize=14)
-    # plt.show()
-    # correlation_matrix(feature_matrix[:10], font_size=1, to_show=True)
-    # len(list(feature_matrix))
-    # print("")
