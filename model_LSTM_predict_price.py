@@ -50,9 +50,9 @@ if __name__ == '__main__':
     # LSTM
     ##########################################################################################
 
-    epochs = 25
-    look_back = 60
-    batch_size = 5
+    epochs = 20
+    look_back = 30
+    batch_size = 50
     n_train = 1175
     X_train = []
     y_train_as_arr = y_train_scaled.ravel()
@@ -65,20 +65,16 @@ if __name__ == '__main__':
     X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
 
     regressor = Sequential()
-    # model.add(LSTM(units=50, return_sequences=True, input_shape=(X_train.shape[1], 1)))
-    regressor.add(LSTM(units=25, return_sequences=True, input_shape=(X_train.shape[1], 1)))
+    regressor.add(LSTM(units=50, return_sequences=True, input_shape=(X_train.shape[1], 1), activation='sigmoid'))
     regressor.add(Dropout(0.2))
 
-    regressor.add(LSTM(units=25, return_sequences=True))
+    regressor.add(LSTM(units=25, return_sequences=True, activation='sigmoid'))
     regressor.add(Dropout(0.2))
 
-    # model.add(LSTM(units=25, return_sequences=True))
-    # model.add(Dropout(0.2))
-    #
-    # model.add(LSTM(units=25, return_sequences=True))
-    # model.add(Dropout(0.2))
+    regressor.add(LSTM(units=25, return_sequences=True, activation='sigmoid'))
+    regressor.add(Dropout(0.2))
 
-    regressor.add(LSTM(units=20))
+    regressor.add(LSTM(units=10, return_sequences=True, activation='sigmoid'))
     regressor.add(Dropout(0.2))
 
     regressor.add(Dense(units=1))
