@@ -96,8 +96,8 @@ if __name__ == '__main__':
 
     y_test_series = y.tail(588-look_back).copy(deep=True)
     y_test = y_test_series.values.ravel()
-    # print("predicted_stock_price")
-    # print(predicted_stock_price.shape)
+    # print("predicted_test_stock_price")
+    # print(predicted_test_stock_price.shape)
     # print("y_test")
     # print(y_test.shape)
 

@@ -91,17 +91,17 @@ if __name__ == '__main__':
         x_test_list.append(inputs[i - look_back:i, 0])
     x_test_list = np.array(x_test_list)
     x_test = np.reshape(x_test_list, (x_test_list.shape[0], x_test_list.shape[1], 1))
-    # predicted_stock_price = regressor.predict(x_test)
+    # predicted_test_stock_price = regressor.predict(x_test)
     predicted_stock_price = regressor.predict(x_test, batch_size=25)
 
-    # print("predicted_stock_price")
-    # print(predicted_stock_price)
+    # print("predicted_test_stock_price")
+    # print(predicted_test_stock_price)
 
     y_test_series = y.tail(588-look_back).copy(deep=True)
     y_test = y_test_series.values.ravel()
 
     plt.plot(range(0, len(y_test)), y_test, color='black', label='Rice Stock Price')
-    # plt.plot(range(0, len(predicted_stock_price)), predicted_stock_price.ravel(), color='green', label='Predicted Rice Stock Price')
+    # plt.plot(range(0, len(predicted_test_stock_price)), predicted_test_stock_price.ravel(), color='green', label='Predicted Rice Stock Price')
     plt.plot(range(0, len(predicted_stock_price)), predicted_stock_price, color='green', label='Predicted Rice Stock Price')
     plt.title('Rice Stock Price Prediction')
     plt.xlabel('Time')

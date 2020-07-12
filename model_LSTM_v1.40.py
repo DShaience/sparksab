@@ -1,5 +1,7 @@
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
+
+from analytical_functions import create_open_close_df, cm_and_classification_report
 from eda_functions import feature_importance_plot
 # import keras
 # from keras.utils import plot_model
@@ -97,9 +99,9 @@ if __name__ == '__main__':
         x_test_list.append(inputs[i - look_back:i, 0])
     x_test_list = np.array(x_test_list)
     x_test = np.reshape(x_test_list, (x_test_list.shape[0], x_test_list.shape[1], 1))
-    # predicted_stock_price = regressor.predict(x_test)
-    predicted_scaled_stock_price = regressor.predict(x_test, batch_size=batch_size)
-    predicted_stock_price = scaler_target.inverse_transform(predicted_scaled_stock_price)
+    # predicted_test_stock_price = regressor.predict(x_test)
+    predicted_test_scaled_stock_price = regressor.predict(x_test, batch_size=batch_size)
+    predicted_test_stock_price = scaler_target.inverse_transform(predicted_test_scaled_stock_price)
 
     predicted_train_scaled_stock_price = regressor.predict(X_train, batch_size=batch_size)
     predicted_train_stock_price = scaler_target.inverse_transform(predicted_train_scaled_stock_price)
@@ -108,7 +110,7 @@ if __name__ == '__main__':
     y_test = y_test_series.values.ravel()
 
     mae_train = mean_absolute_error(y_train_series.values[look_back:], predicted_train_scaled_stock_price)
-    mae_test = mean_absolute_error(y_test, predicted_stock_price)
+    mae_test = mean_absolute_error(y_test, predicted_test_stock_price)
     print("Train MAE: %.5f" % mae_train)
     print("Test MAE: %.5f" % mae_test)
 
@@ -122,12 +124,26 @@ if __name__ == '__main__':
 
     # todo: add MAE for train and test
     plt.plot(range(0, len(y_test)), y_test, color='blue', label='Rice Stock Price test')
-    plt.plot(range(0, len(predicted_stock_price)), predicted_stock_price, color='purple', label='Predicted Rice Stock Price test')
+    plt.plot(range(0, len(predicted_test_stock_price)), predicted_test_stock_price, color='purple', label='Predicted Rice Stock Price test')
     plt.title('Rice Stock Price Prediction')
     plt.xlabel('Time')
     plt.ylabel('Rice Stock Price')
     plt.legend()
     plt.show()
+
+    # pickle.dump(y_train_series, open("data/output/y_train_series.p", "wb"))
+    # pickle.dump(predicted_train_stock_price, open("data/output/predicted_train_stock_price.p", "wb"))
+    # pickle.dump(y_test, open("data/output/y_test.p", "wb"))
+    # pickle.dump(predicted_test_stock_price, open("data/output/predicted_test_stock_price.p", "wb"))
+
+    test_original_features: pd.DataFrame = feature_matrix_full.tail(588 - look_back).copy(deep=True)
+    train_binary_class_df = create_open_close_df(x_train['Open'].values[look_back:], y_train_series.values.ravel()[look_back:], predicted_train_stock_price.ravel())
+    test_binary_class_df = create_open_close_df(test_original_features['Open'].values, y_test.ravel(), predicted_test_stock_price.ravel())
+
+    print("TRAIN")
+    cm_and_classification_report(train_binary_class_df['hasStockGoneUp'].values, train_binary_class_df['hasStockGoneUp_pred'].values, labels=[0, 1])
+    print("TEST")
+    cm_and_classification_report(test_binary_class_df['hasStockGoneUp'].values, test_binary_class_df['hasStockGoneUp_pred'].values, labels=[0, 1])
 
 
 
