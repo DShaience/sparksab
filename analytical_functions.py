@@ -1,3 +1,6 @@
+import datetime
+import time
+
 import numpy as np
 import pandas as pd
 from sklearn.metrics import confusion_matrix, classification_report
@@ -51,4 +54,14 @@ def cm_and_classification_report(y: np.ndarray, y_pred: np.ndarray, labels: list
     print("")
     # Print the confusion matrix, precision and recall, among other metrics
     print(classification_report(y, y_pred, digits=3))
-    print("")
+
+
+def generateshortDateTimeStamp(ts: float = None) -> str:
+    '''
+    :param ts: float, but expects timestamp time.time(). If none, generate timestamp of execution
+    :return:
+    '''
+    if ts is None:
+        ts = int(time.time())
+    shortDateTimeStamp = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d___%H-%M-%S')
+    return shortDateTimeStamp
