@@ -50,8 +50,9 @@ if __name__ == '__main__':
     # LSTM
     ##########################################################################################
 
+    epochs = 25
     look_back = 60
-    batch_size = 150
+    batch_size = 5
     n_train = 1175
     X_train = []
     y_train_as_arr = y_train_scaled.ravel()
@@ -84,7 +85,7 @@ if __name__ == '__main__':
 
     regressor.compile(optimizer='adam', loss='mean_squared_error')
 
-    regressor.fit(X_train, y_train, epochs=50, batch_size=batch_size)
+    regressor.fit(X_train, y_train, epochs=epochs, batch_size=batch_size)
     # regressor.fit(X_train, y_train, epochs=100, batch_size=50)
     plot_model(regressor, to_file=f'output/{ts}_model.png')
 
@@ -100,7 +101,7 @@ if __name__ == '__main__':
         x_test_list.append(inputs[i - look_back:i, 0])
     x_test_list = np.array(x_test_list)
     x_test = np.reshape(x_test_list, (x_test_list.shape[0], x_test_list.shape[1], 1))
-    # predicted_test_stock_price = regressor.predict(x_test)
+
     predicted_test_scaled_stock_price = regressor.predict(x_test, batch_size=batch_size)
     predicted_test_stock_price = scaler_target.inverse_transform(predicted_test_scaled_stock_price)
 
@@ -116,7 +117,7 @@ if __name__ == '__main__':
     plt.xlabel('Time')
     plt.ylabel('Rice Stock Price')
     plt.legend()
-    # plt.show()
+    plt.show()
 
     # todo: add MAE for train and test
     plt.plot(range(0, len(y_test)), y_test, color='blue', label='Rice Stock Price test')
@@ -125,12 +126,7 @@ if __name__ == '__main__':
     plt.xlabel('Time')
     plt.ylabel('Rice Stock Price')
     plt.legend()
-    # plt.show()
-
-    # pickle.dump(y_train_series, open("data/output/y_train_series.p", "wb"))
-    # pickle.dump(predicted_train_stock_price, open("data/output/predicted_train_stock_price.p", "wb"))
-    # pickle.dump(y_test, open("data/output/y_test.p", "wb"))
-    # pickle.dump(predicted_test_stock_price, open("data/output/predicted_test_stock_price.p", "wb"))
+    plt.show()
 
     test_original_features: pd.DataFrame = feature_matrix_full.tail(588 - look_back).copy(deep=True)
     train_binary_class_df = create_open_close_df(x_train['Open'].values[look_back:], y_train_series.values.ravel()[look_back:], predicted_train_stock_price.ravel())
@@ -147,14 +143,22 @@ if __name__ == '__main__':
             cm_and_classification_report(train_binary_class_df['hasStockGoneUp'].values, train_binary_class_df['hasStockGoneUp_pred'].values, labels=[0, 1])
             print("TEST")
             cm_and_classification_report(test_binary_class_df['hasStockGoneUp'].values, test_binary_class_df['hasStockGoneUp_pred'].values, labels=[0, 1])
-            print(f"\nlook_back: {look_back}")
-            print(f"\nbatch_size: {batch_size}")
-            print("Train MAE: %.5f" % mae_train)
-            print("Test MAE: %.5f" % mae_test)
+            print(f"\nlook_back:\t{look_back}")
+            print(f"batch_size:\t{batch_size}")
+            print(f"epochs:\t{epochs}")
+            print("Train MAE: %.3f" % mae_train)
+            print("Test MAE: %.3f" % mae_test)
     f.close()
     with open(fname, 'r') as f:
         print(f.read())
     f.close()
+
+
+    # pickle.dump(y_train_series, open("data/output/y_train_series.p", "wb"))
+    # pickle.dump(predicted_train_stock_price, open("data/output/predicted_train_stock_price.p", "wb"))
+    # pickle.dump(y_test, open("data/output/y_test.p", "wb"))
+    # pickle.dump(predicted_test_stock_price, open("data/output/predicted_test_stock_price.p", "wb"))
+
 
 
 

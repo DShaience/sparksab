@@ -167,7 +167,7 @@ def plot_prices(x_series: pd.Series, df: pd.DataFrame, to_show: bool = True):
 def feature_importance_plot(features: pd.DataFrame, y_true: pd.Series, to_show: bool = True) -> pd.DataFrame:
     model = ExtraTreesRegressor(n_estimators=40, random_state=90210)
     model.fit(features.values, y_true.values.ravel())
-    print(model.feature_importances_)
+    # print(model.feature_importances_)
     feature_importance_df = pd.DataFrame({'Feature': list(features), 'Importance': model.feature_importances_})
     feature_importance_df.sort_values(by='Importance', ascending=False, inplace=True)
     feature_importance_df_partial = feature_importance_df.head(60)
