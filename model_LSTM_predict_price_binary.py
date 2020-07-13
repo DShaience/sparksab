@@ -34,9 +34,6 @@ if __name__ == '__main__':
     # y_binary = pd.DataFrame({'hasStockGoneUp': y['Close'] - feature_matrix_full['Open'] > 0.05})
     y_binary = pd.DataFrame({'hasStockGoneUp': y['Close'] - feature_matrix_full['Open'] > 0.0})
 
-    # print(f"True: {y_binary.sum()}")
-    # print(f"False: {len(y_binary) - y_binary.sum()}")
-    # print("")
     feature_importance = feature_importance_plot(feature_matrix_full, y, to_show=False)
     # important_features = feature_importance['Feature'].values[50:]
     # feature_matrix = feature_matrix_full[important_features].copy(deep=True)
@@ -49,38 +46,40 @@ if __name__ == '__main__':
     scaler.fit(x_train)
 
     x_train_scaled = scaler.transform(x_train)
-
+    print("x_train_scaled.shape")
+    print(x_train_scaled.shape)
     ##########################################################################################
     # LSTM
     ##########################################################################################
-    epochs = 10
+    epochs = 5
     look_back = 60
-    batch_size = 50
+    batch_size = 100
     n_train = 1175
     X_train = []
     y_train_as_arr = y_train_df.values.ravel()
     y_train = []
     for i in range(look_back, n_train):
         X_train.append(x_train_scaled[i - look_back:i, 0])
+        b = x_train_scaled[i - look_back:i, 0]
         y_train.append(y_train_as_arr[i])
 
     X_train, y_train = np.array(X_train), np.array(y_train)
     X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
 
     model = Sequential()
-    model.add(LSTM(units=25, return_sequences=True, input_shape=(X_train.shape[1], 1), activation='relu'))
+    model.add(LSTM(units=100, return_sequences=True, input_shape=(X_train.shape[1], 1), activation='linear'))
     model.add(Dropout(0.2))
 
-    model.add(LSTM(units=25, return_sequences=True, activation='relu'))
+    model.add(LSTM(units=50, return_sequences=True, activation='tanh'))
     model.add(Dropout(0.2))
 
-    model.add(LSTM(units=25, return_sequences=True, activation='relu'))
+    model.add(LSTM(units=25))
     model.add(Dropout(0.2))
 
-    model.add(LSTM(units=20, activation='relu'))
-    model.add(Dropout(0.2))
+    # model.add(LSTM(units=20))
+    # model.add(Dropout(0.2))
 
-    model.add(Dense(units=1, activation='sigmoid'))
+    model.add(Dense(units=1, activation='tanh'))
 
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 

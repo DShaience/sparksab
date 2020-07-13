@@ -31,9 +31,11 @@ if __name__ == '__main__':
     y = pd.read_csv('data/dfs/y_label.csv')
 
     feature_importance = feature_importance_plot(feature_matrix_full, y, to_show=False)
-    # important_features = feature_importance['Feature'].values[50:]
+    # important_features = feature_importance['Feature'].values[:50]
     # feature_matrix = feature_matrix_full[important_features].copy(deep=True)
     feature_matrix = feature_matrix_full.copy(deep=True)
+
+    n_features = len(list(feature_matrix))
 
     x_train = feature_matrix.head(1175).copy(deep=True)
     y_train_series = y.head(1175).copy(deep=True)
@@ -58,17 +60,23 @@ if __name__ == '__main__':
     y_train_as_arr = y_train_scaled.ravel()
     y_train = []
     for i in range(look_back, n_train):
-        X_train.append(x_train_scaled[i - look_back:i, 0])
+        # X_train.append(x_train_scaled[i - look_back:i, 0])
+        X_train.append(x_train_scaled[i - look_back:i])
         y_train.append(y_train_as_arr[i])
 
     X_train, y_train = np.array(X_train), np.array(y_train)
-    X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
+    # X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
+    X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], n_features))
 
     regressor = Sequential()
-    regressor.add(LSTM(units=100, return_sequences=True, input_shape=(X_train.shape[1], 1)))
+    # regressor.add(LSTM(units=100, return_sequences=True, input_shape=(X_train.shape[1], 1)))
+    # regressor.add(LSTM(units=25, return_sequences=True, input_shape=(X_train.shape[1], n_features)))
+    # regressor.add(Dropout(0.2))
+    regressor.add(LSTM(units=50, return_sequences=True, input_shape=(X_train.shape[1], n_features)))
     regressor.add(Dropout(0.2))
 
-    regressor.add(LSTM(units=50, return_sequences=True, activation='tanh'))
+    # regressor.add(LSTM(units=50, return_sequences=True, activation='tanh'))
+    regressor.add(LSTM(units=50, return_sequences=True))
     regressor.add(Dropout(0.2))
 
     regressor.add(LSTM(units=25))
@@ -85,14 +93,51 @@ if __name__ == '__main__':
     # Test
     ##########################################################################################
     feature_matrix_scaled = scaler.transform(feature_matrix)
-    inputs = feature_matrix_scaled[len(feature_matrix_scaled) - len(feature_matrix_scaled) - look_back:]
-    inputs = inputs.reshape(-1, 1)
+    # inputs = feature_matrix_scaled[len(feature_matrix_scaled) - len(feature_matrix_scaled) - look_back:]
+    # inputs = inputs.reshape(-1, 1)
+    #
+    # x_test_list = []
+    # for i in range(look_back, 588):
+    #     # x_test_list.append(inputs[i - look_back:i, 0])
+    #     x_test_list.append(inputs[i - look_back:i])
+    # x_test_list = np.array(x_test_list)
+    # x_test = np.reshape(x_test_list, (x_test_list.shape[0]-look_back, x_test_list.shape[1], n_features))
 
-    x_test_list = []
-    for i in range(look_back, 588):
-        x_test_list.append(inputs[i - look_back:i, 0])
-    x_test_list = np.array(x_test_list)
-    x_test = np.reshape(x_test_list, (x_test_list.shape[0], x_test_list.shape[1], 1))
+    # test_original_features: pd.DataFrame = feature_matrix_full.tail(588 - look_back).copy(deep=True)
+    n_rows_test = 588
+    # inputs = feature_matrix_scaled[len(feature_matrix_scaled) - n_rows_test - look_back:].values
+    print("feature_matrix_scaled.shape")
+    print(feature_matrix_scaled.shape)
+    inputs = feature_matrix_scaled[len(feature_matrix_scaled) - n_rows_test - look_back:]
+    print("inputs.shape")
+    print(inputs.shape)
+    # inputs = scaler.transform(inputs)
+    # inputs = inputs.reshape(-1, 1)
+
+    X_test = []
+    for i in range(look_back, n_rows_test):
+        # X_test.append(inputs[i-look_back:i, 0])
+        X_test.append(inputs[i-look_back:i])
+    x_test = np.array(X_test)
+    # X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], n_features))
+
+
+    # inputs = feature_matrix_scaled[len(feature_matrix_scaled) - len(feature_matrix_scaled) - look_back:]
+    # for i in range(look_back, n_train):
+    #     for i in range(look_back, n_train):
+    #         # X_train.append(x_train_scaled[i - look_back:i, 0])
+    #         X_train.append(x_train_scaled[i - look_back:i])
+    #         y_train.append(y_train_as_arr[i])
+    #
+    #     X_train, y_train = np.array(X_train), np.array(y_train)
+    #     # X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
+    #     X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], n_features))
+
+
+
+
+
+
 
     predicted_test_scaled_stock_price = regressor.predict(x_test, batch_size=batch_size)
     predicted_test_stock_price = scaler_target.inverse_transform(predicted_test_scaled_stock_price)
