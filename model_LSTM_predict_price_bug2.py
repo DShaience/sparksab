@@ -52,8 +52,8 @@ if __name__ == '__main__':
     # LSTM
     ##########################################################################################
 
-    epochs = 10
-    look_back = 60
+    epochs = 8
+    look_back = 10
     batch_size = 50
     n_train = 1175
     X_train = []
@@ -145,7 +145,7 @@ if __name__ == '__main__':
     predicted_train_scaled_stock_price = regressor.predict(X_train, batch_size=batch_size)
     predicted_train_stock_price = scaler_target.inverse_transform(predicted_train_scaled_stock_price)
 
-    y_test_series = y.tail(588-look_back).copy(deep=True)
+    y_test_series = y.tail(n_rows_test-look_back).copy(deep=True)
     y_test = y_test_series.values.ravel()
 
     plt.plot(range(0, len(y_train_series)), y_train_series.values, color='black', label='Rice Stock Price')
@@ -156,23 +156,22 @@ if __name__ == '__main__':
     plt.legend()
     plt.show()
 
-    # todo: add MAE for train and test
-    plt.plot(range(0, len(y_test)), y_test, color='blue', label='Rice Stock Price test')
-    plt.plot(range(0, len(predicted_test_stock_price)), predicted_test_stock_price, color='purple', label='Predicted Rice Stock Price test')
+    # tf.keras.backend.clear_session()
+    plt.plot(range(look_back, len(y_test)+look_back), y_test, color='blue', label='Rice Stock Price test')
+    plt.plot(range(0, len(predicted_test_stock_price)), predicted_test_stock_price.ravel(), color='purple', label='Predicted Rice Stock Price test')
     plt.title('Rice Stock Price Prediction')
     plt.xlabel('Time')
     plt.ylabel('Rice Stock Price')
     plt.legend()
     plt.show()
 
-    test_original_features: pd.DataFrame = feature_matrix_full.tail(588 - look_back).copy(deep=True)
+    test_original_features: pd.DataFrame = feature_matrix_full.tail(n_rows_test - look_back).copy(deep=True)
     train_binary_class_df = create_open_close_df(x_train['Open'].values[look_back:], y_train_series.values.ravel()[look_back:], predicted_train_stock_price.ravel())
     test_binary_class_df = create_open_close_df(test_original_features['Open'].values, y_test.ravel(), predicted_test_stock_price.ravel())
 
     mae_train = mean_absolute_error(y_train_series.values[look_back:], predicted_train_scaled_stock_price)
     mae_test = mean_absolute_error(y_test, predicted_test_stock_price)
 
-    # sys.stdout = open('data/output/' + ts + '.txt', 'w')
     fname = 'output/' + ts + '.txt'
     with open(fname, 'w') as f:
         with redirect_stdout(f):
