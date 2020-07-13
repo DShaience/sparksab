@@ -49,9 +49,8 @@ if __name__ == '__main__':
     y_train_scaled = scaler_target.transform(y_train_series.values)
 
     ##########################################################################################
-    # LSTM
+    # LSTM - preparing dataset
     ##########################################################################################
-
     epochs = 10
     look_back = 10
     # epochs = 20
@@ -67,6 +66,9 @@ if __name__ == '__main__':
     X_train, y_train = np.array(X_train), np.array(y_train)
     X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], n_features))
 
+    ##########################################################################################
+    # LSTM Model
+    ##########################################################################################
     regressor = Sequential()
     regressor.add(LSTM(units=100, return_sequences=True, input_shape=(X_train.shape[1], n_features)))
     regressor.add(Dropout(0.2))
@@ -85,16 +87,8 @@ if __name__ == '__main__':
     plot_model(regressor, to_file=f'output/{ts}_model.png')
 
     ##########################################################################################
-    # Test
+    # Train stock price visualization
     ##########################################################################################
-    feature_matrix_scaled = scaler.transform(feature_matrix)
-    inputs = feature_matrix_scaled[len(feature_matrix_scaled) - n_rows_test - look_back:]
-
-    X_test = []
-    for i in range(look_back, n_rows_test):
-        X_test.append(inputs[i-look_back:i])
-    x_test = np.array(X_test)
-
     predicted_train_scaled_stock_price = regressor.predict(X_train, batch_size=batch_size)
     predicted_train_stock_price = scaler_target.inverse_transform(predicted_train_scaled_stock_price)
 
@@ -105,6 +99,17 @@ if __name__ == '__main__':
     plt.ylabel('Rice Stock Price')
     plt.legend()
     plt.show()
+
+    ##########################################################################################
+    # Test
+    ##########################################################################################
+    feature_matrix_scaled = scaler.transform(feature_matrix)
+    inputs = feature_matrix_scaled[len(feature_matrix_scaled) - n_rows_test - look_back:]
+
+    X_test = []
+    for i in range(look_back, n_rows_test):
+        X_test.append(inputs[i-look_back:i])
+    x_test = np.array(X_test)
 
     predicted_test_scaled_stock_price = regressor.predict(x_test, batch_size=batch_size)
     predicted_test_stock_price = scaler_target.inverse_transform(predicted_test_scaled_stock_price)
