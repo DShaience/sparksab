@@ -2,9 +2,7 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from analytical_functions import create_open_close_df, cm_and_classification_report, generateshortDateTimeStamp
 from eda_functions import feature_importance_plot
-# import keras
 from keras.utils import plot_model
-# from keras import optimizers
 from sklearn.metrics import mean_absolute_error
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM
@@ -31,12 +29,16 @@ if __name__ == '__main__':
     y = pd.read_csv('data/dfs/y_label.csv')
 
     feature_importance = feature_importance_plot(feature_matrix_full, y, to_show=False)
-    # important_features = feature_importance['Feature'].values[50:]
+    # important_features = feature_importance['Feature'].values[:50]
     # feature_matrix = feature_matrix_full[important_features].copy(deep=True)
     feature_matrix = feature_matrix_full.copy(deep=True)
 
-    x_train = feature_matrix.head(1175).copy(deep=True)
-    y_train_series = y.head(1175).copy(deep=True)
+    n_features = len(list(feature_matrix))
+    n_rows_test = 588
+    n_rows_train = 1175
+
+    x_train = feature_matrix.head(n_rows_train).copy(deep=True)
+    y_train_series = y.head(n_rows_train).copy(deep=True)
 
     scaler = MinMaxScaler(feature_range=(-1, 1))
     scaler.fit(x_train)
@@ -51,24 +53,25 @@ if __name__ == '__main__':
     ##########################################################################################
 
     epochs = 10
-    look_back = 60
+    look_back = 10
+    # epochs = 20
+    # look_back = 30
     batch_size = 50
-    n_train = 1175
     X_train = []
     y_train_as_arr = y_train_scaled.ravel()
     y_train = []
-    for i in range(look_back, n_train):
-        X_train.append(x_train_scaled[i - look_back:i, 0])
+    for i in range(look_back, n_rows_train):
+        X_train.append(x_train_scaled[i - look_back:i])
         y_train.append(y_train_as_arr[i])
 
     X_train, y_train = np.array(X_train), np.array(y_train)
-    X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
+    X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], n_features))
 
     regressor = Sequential()
-    regressor.add(LSTM(units=100, return_sequences=True, input_shape=(X_train.shape[1], 1)))
+    regressor.add(LSTM(units=100, return_sequences=True, input_shape=(X_train.shape[1], n_features)))
     regressor.add(Dropout(0.2))
 
-    regressor.add(LSTM(units=50, return_sequences=True, activation='tanh'))
+    regressor.add(LSTM(units=50, return_sequences=True, activation='relu'))
     regressor.add(Dropout(0.2))
 
     regressor.add(LSTM(units=25))
@@ -85,23 +88,15 @@ if __name__ == '__main__':
     # Test
     ##########################################################################################
     feature_matrix_scaled = scaler.transform(feature_matrix)
-    inputs = feature_matrix_scaled[len(feature_matrix_scaled) - len(feature_matrix_scaled) - look_back:]
-    inputs = inputs.reshape(-1, 1)
+    inputs = feature_matrix_scaled[len(feature_matrix_scaled) - n_rows_test - look_back:]
 
-    x_test_list = []
-    for i in range(look_back, 588):
-        x_test_list.append(inputs[i - look_back:i, 0])
-    x_test_list = np.array(x_test_list)
-    x_test = np.reshape(x_test_list, (x_test_list.shape[0], x_test_list.shape[1], 1))
-
-    predicted_test_scaled_stock_price = regressor.predict(x_test, batch_size=batch_size)
-    predicted_test_stock_price = scaler_target.inverse_transform(predicted_test_scaled_stock_price)
+    X_test = []
+    for i in range(look_back, n_rows_test):
+        X_test.append(inputs[i-look_back:i])
+    x_test = np.array(X_test)
 
     predicted_train_scaled_stock_price = regressor.predict(X_train, batch_size=batch_size)
     predicted_train_stock_price = scaler_target.inverse_transform(predicted_train_scaled_stock_price)
-
-    y_test_series = y.tail(588-look_back).copy(deep=True)
-    y_test = y_test_series.values.ravel()
 
     plt.plot(range(0, len(y_train_series)), y_train_series.values, color='black', label='Rice Stock Price')
     plt.plot(range(look_back, len(predicted_train_stock_price)+look_back), predicted_train_stock_price, color='green', label='Predicted Rice Stock Price')
@@ -111,23 +106,26 @@ if __name__ == '__main__':
     plt.legend()
     plt.show()
 
-    # todo: add MAE for train and test
+    predicted_test_scaled_stock_price = regressor.predict(x_test, batch_size=batch_size)
+    predicted_test_stock_price = scaler_target.inverse_transform(predicted_test_scaled_stock_price)
+    y_test_series = y.tail(n_rows_test).copy(deep=True)
+    y_test = y_test_series.values.ravel()
+
     plt.plot(range(0, len(y_test)), y_test, color='blue', label='Rice Stock Price test')
-    plt.plot(range(0, len(predicted_test_stock_price)), predicted_test_stock_price, color='purple', label='Predicted Rice Stock Price test')
+    plt.plot(range(0, len(predicted_test_stock_price)), predicted_test_stock_price.ravel(), color='purple', label='Predicted Rice Stock Price test')
     plt.title('Rice Stock Price Prediction')
     plt.xlabel('Time')
     plt.ylabel('Rice Stock Price')
     plt.legend()
     plt.show()
 
-    test_original_features: pd.DataFrame = feature_matrix_full.tail(588 - look_back).copy(deep=True)
+    test_original_features: pd.DataFrame = feature_matrix_full.tail(n_rows_test - look_back).copy(deep=True)
     train_binary_class_df = create_open_close_df(x_train['Open'].values[look_back:], y_train_series.values.ravel()[look_back:], predicted_train_stock_price.ravel())
-    test_binary_class_df = create_open_close_df(test_original_features['Open'].values, y_test.ravel(), predicted_test_stock_price.ravel())
+    test_binary_class_df = create_open_close_df(test_original_features['Open'].values, y_test.ravel()[:-look_back], predicted_test_stock_price.ravel())
 
     mae_train = mean_absolute_error(y_train_series.values[look_back:], predicted_train_scaled_stock_price)
-    mae_test = mean_absolute_error(y_test, predicted_test_stock_price)
+    mae_test = mean_absolute_error(y_test[:-look_back], predicted_test_stock_price)
 
-    # sys.stdout = open('data/output/' + ts + '.txt', 'w')
     fname = 'output/' + ts + '.txt'
     with open(fname, 'w') as f:
         with redirect_stdout(f):
@@ -144,13 +142,4 @@ if __name__ == '__main__':
     with open(fname, 'r') as f:
         print(f.read())
     f.close()
-
-
-    # pickle.dump(y_train_df, open("data/output/y_train_df.p", "wb"))
-    # pickle.dump(predicted_train_stock_price, open("data/output/predicted_train_stock_price.p", "wb"))
-    # pickle.dump(y_test, open("data/output/y_test.p", "wb"))
-    # pickle.dump(predicted_test_stock_price, open("data/output/predicted_test_stock_price.p", "wb"))
-
-
-
 
