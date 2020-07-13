@@ -4,3 +4,4 @@ venv/
 __pycache__/
 scribbles/
 output/
+.ipynb_checkpoints/
