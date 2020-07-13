@@ -1,8 +1,6 @@
 import pandas as pd
 import featuretools as ft
-from eda_functions import correlation_matrix, plot_prices, feature_importance_plot
-from sklearn.ensemble import ExtraTreesRegressor
-from matplotlib import pyplot as plt
+from eda_functions import correlation_matrix, plot_time_data, feature_importance_plot
 
 
 if __name__ == '__main__':
@@ -25,8 +23,11 @@ if __name__ == '__main__':
     # This means that, usually, on a daily basis, the stock doesn't change all that much
     ################################################################################################
     print()
-    plot_prices(data_raw['Date'], data_raw[['Open', 'High', 'Low', 'Close']], to_show=True)
-    plot_prices(data_raw['Date'], data_raw[['Humidity']], to_show=True)
+    plot_time_data(data_raw['Date'], data_raw[['Open', 'High', 'Low', 'Close']], to_show=True)
+    plot_time_data(data_raw['Date'], data_raw[['Humidity']], to_show=True)
+    # Add running average on humidity
+    running_humidity = data_raw[['Humidity']].rolling(window=30).mean()
+    plot_time_data(data_raw['Date'], running_humidity, to_show=True)
     ################################################################################################
     # TO JUPYTER
     # As we suspected, we see that the prices are extremely well correlated, on a daily basis.

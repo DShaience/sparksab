@@ -130,13 +130,13 @@ def print_cm(cm: np.ndarray, labels: list, hide_zeroes=False, hide_diagonal=Fals
         print()
 
 
-def plot_prices(x_series: pd.Series, df: pd.DataFrame, to_show: bool = True):
+def plot_time_data(x_series: pd.Series, df: pd.DataFrame, to_show: bool = True):
     warnings.filterwarnings("ignore")
     years = mdates.YearLocator()  # every year
     months = mdates.MonthLocator()  # every month
     years_fmt = mdates.DateFormatter('%Y')
     x_dates = pd.to_datetime(x_series, format='%m/%d/%Y').values
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(12, 7))
 
     for seriesName in list(df):
         ax.plot(x_dates, seriesName, data=df, label=seriesName)
