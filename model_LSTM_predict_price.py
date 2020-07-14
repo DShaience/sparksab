@@ -29,9 +29,9 @@ if __name__ == '__main__':
     y = pd.read_csv('data/dfs/y_label.csv')
 
     feature_importance = feature_importance_plot(feature_matrix_full, y, to_show=False)
-    # important_features = feature_importance['Feature'].values[:50]
-    # feature_matrix = feature_matrix_full[important_features].copy(deep=True)
-    feature_matrix = feature_matrix_full.copy(deep=True)
+    important_features = feature_importance['Feature'].values[:75]
+    feature_matrix = feature_matrix_full[important_features].copy(deep=True)
+    # feature_matrix = feature_matrix_full.copy(deep=True)
 
     n_features = len(list(feature_matrix))
     n_rows_test = 588
