@@ -51,10 +51,10 @@ if __name__ == '__main__':
     ##########################################################################################
     # LSTM - preparing dataset
     ##########################################################################################
-    epochs = 10
-    look_back = 10
-    # epochs = 20
-    # look_back = 30
+    # epochs = 5
+    # look_back = 20
+    epochs = 20
+    look_back = 30
     batch_size = 50
     X_train = []
     y_train_as_arr = y_train_scaled.ravel()
@@ -92,8 +92,8 @@ if __name__ == '__main__':
     predicted_train_scaled_stock_price = regressor.predict(X_train, batch_size=batch_size)
     predicted_train_stock_price = scaler_target.inverse_transform(predicted_train_scaled_stock_price)
 
-    plt.plot(range(0, len(y_train_series)), y_train_series.values, color='black', label='Rice Stock Price')
-    plt.plot(range(look_back, len(predicted_train_stock_price)+look_back), predicted_train_stock_price, color='green', label='Predicted Rice Stock Price')
+    plt.plot(range(0, n_rows_train-look_back), y_train_series.values[look_back:], color='black', label='Rice Stock Price')
+    plt.plot(range(0, len(predicted_train_stock_price)), predicted_train_stock_price, color='green', label='Predicted Rice Stock Price')
     plt.title('Rice Stock Price Prediction')
     plt.xlabel('Time')
     plt.ylabel('Rice Stock Price')
@@ -124,8 +124,8 @@ if __name__ == '__main__':
     plt.legend()
     plt.show()
 
+    train_binary_class_df = create_open_close_df(x_train['Open'].values[look_back:], y_train_series.values[look_back:].ravel(), predicted_train_stock_price.ravel())
     test_original_features: pd.DataFrame = feature_matrix_full.tail(n_rows_test - look_back).copy(deep=True)
-    train_binary_class_df = create_open_close_df(x_train['Open'].values[look_back:], y_train_series.values.ravel()[look_back:], predicted_train_stock_price.ravel())
     test_binary_class_df = create_open_close_df(test_original_features['Open'].values, y_test.ravel()[:-look_back], predicted_test_stock_price.ravel())
 
     mae_train = mean_absolute_error(y_train_series.values[look_back:], predicted_train_scaled_stock_price)

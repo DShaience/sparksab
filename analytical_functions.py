@@ -8,8 +8,8 @@ from sklearn.metrics import confusion_matrix, classification_report
 
 def create_open_close_df(open_stock_vals: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray, thr: float = 0.0) -> pd.DataFrame:
     df = pd.DataFrame({"Open": open_stock_vals, "Close": y_true, "Close_pred": y_pred})
-    df['hasStockGoneUp'] = df['Close'] - df['Open'] > thr
-    df['hasStockGoneUp_pred'] = df['Close_pred'] - df['Open'] > thr
+    df['hasStockGoneUp'] = (df['Close'] - df['Open']) > thr
+    df['hasStockGoneUp_pred'] = (df['Close_pred'] - df['Open']) > thr
     return df
 
 
